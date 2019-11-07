@@ -1,3 +1,5 @@
-Lembrando que essa Lista está em LATEX, para compilar ela programas ou sites que reconheçam essa linguagem (Como o Overleaf) devem ser utilizados.
+fazer exercícios:
+pag.60: 5 e 6
+Série 1- cap. 3: 1, 3, 5, 9, 13, 15, 18, 21
 
-Quando a Lista for finalizada uma versão em pdf será adicionada. 
+Façam os cálculos de maneira manual e também utilizem o R para calcular e plotar os gráficos !!!!
