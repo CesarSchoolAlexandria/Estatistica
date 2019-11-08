@@ -1,0 +1,26 @@
+\section*{Série 1 cap. 3 - 9}
+\subsection*{A}
+\begin{lstlisting}[mathescape]
+q = 0,05
+q = 1-p
+0,05 = 1-p
+p = 0,95 = 95%
+\end{lstlisting}
+
+\subsection*{B}
+\begin{lstlisting}[mathescape]
+P(x = 97) = C100,97 * $p^{97}$ $q^{100-97}$
+P(x = 97) = $\frac{100 * 99 * 98 * 97!}{3!97!}$ * $\frac{95}{100}^{97}$ $(\frac{5}{100})^3$
+P(x = 97) = 50 * 33 * 98 * $\frac{95^{97} * 5^3}{100^{100}}$
+P(x = 97) = $\frac{161700 * 95^{97} (125)}{100^{97} * 100^3}$ 
+P(x = 97) = 20212,5 * $(\frac{95}{100})^{97}$
+\end{lstlisting}
+
+\subsection*{C}
+\begin{lstlisting}[mathescape]
+P(x > 1) = 1 - P(x = 0)
+P(x = 0) = C100,0 * $p^0$ $q^{100}$
+P(x = 0) = 1 * 1 * $(\frac{5}{100})^{100}$
+P(x = 0) = $(\frac{5}{100})^{100}$
+P(x > 1) = 1 - $(\frac{5}{100})^{100}$
+\end{lstlisting}
