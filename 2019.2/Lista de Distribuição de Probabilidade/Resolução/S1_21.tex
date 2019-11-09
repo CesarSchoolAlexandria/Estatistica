@@ -1,0 +1,28 @@
+\section*{Série 1 cap. 3 - 21}
+\subsection*{Média}
+$$E[X]=\sum_{k=0}^{\infty} K \rho [X = k] = 1$$
+$$E[X]=\sum_{k=0}^{\infty} K [\frac{e^{-\lambda} \lambda^k}{k!},]$$
+$$E[X]= \underbrace{0 [\frac{e^{-\lambda} \lambda^0}{0!},]}_\textrm{k = 0} + \underbrace{1 [\frac{e^{-\lambda} \lambda^1}{1!},]}_\textrm{k = 1} + \underbrace{2 [\frac{e^{-\lambda} \lambda^2}{2!},]}_\textrm{k = 2} + ...$$
+$$\sum_{k=1}^{\infty} K [\frac{e^{-\lambda} \lambda^k}{k!}] = \sum_{k=1}^{\infty} K [\frac{e^{-\lambda} \lambda^{k-1}}{(k-1)!}]$$
+$$E[X]=\lambda \sum_{k=1}^{\infty}[\frac{e^{-\lambda} \lambda^{k-1}}{(k-1)!}]$$
+$$E[X]=\lambda e^{-\lambda} \sum_{k=0}^{\infty}\lambda[\frac{ \lambda^{k}}{(k)!}]$$
+$$E[X]=\lambda e^{-\lambda} [\frac{ \lambda^{0}}{(0)!} + \frac{ \lambda^{1}}{(1)!} + \frac{ \lambda^{2}}{(2)!} + \frac{ \lambda^{3}}{(3)!} + ...]$$
+$$E[X] = \lambda e^{-\lambda} e^{\lambda}$$
+$$E[X] = \lambda$$
+
+\subsection*{Variância}
+$$var(X) = E(X^2)-(E(X))^2$$
+$$E(X^2) = \sum_{x \in \Omega x}x^2 Pr(X = x)$$
+$$E(X^2) = \sum_{k \geq 0}k^2 \frac{1}{k!} \lambda^k e^{-\lambda}$$
+$$E(X^2) = \lambda e^{-\lambda} \sum_{k \geq 1}k \frac{1}{(k -1)!} \lambda^{k-1}$$
+$$E(X^2) = \lambda e^{-\lambda} (\sum_{k \geq 1}(k-1) \frac{1}{(k -1)!} \lambda^{k-1} + \sum_{k \geq 1}k \frac{1}{(k -1)!} \lambda^{k-1})$$
+$$E(X^2) = \lambda e^{-\lambda} (\sum_{k \geq 2} \frac{1}{(k -2)!} \lambda^{k-2} + \sum_{k \geq 1}k \frac{1}{(k -1)!} \lambda^{k-1})$$
+$$E(X^2) = \lambda e^{-\lambda} (\sum_{i \geq 0} \frac{1}{i!} \lambda^i + \sum_{j \geq 0}k \frac{1}{j!} \lambda^j)$$
+$$E(X^2) = \lambda e^{-\lambda} (\lambda e^{\lambda} + e^{\lambda})$$
+$$E(X^2) = \lambda(\lambda + 1)$$
+$$E(X^2) = \lambda^2 + \lambda$$
+
+Então:
+$$var(X) = E(X^2) - (E(X))^2$$
+$$var(X) = \lambda^2 + \lambda - \lambda^2$$
+$$var(X) = \lambda$$
