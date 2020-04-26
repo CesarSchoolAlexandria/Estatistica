@@ -1,0 +1,280 @@
+---
+title: "Titanic - Planejamento Fatorial 2K"
+runtime: shiny
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    vertical_layout: fill
+    theme: cerulean
+    source_code: embed
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(ggplot2)
+library(broom)
+library(modelr)
+library(gridExtra)
+library(grid)
+library(psych)
+library(dplyr)
+library(rcompanion)
+titanicDataset <- readxl::read_xlsx("titanic.xlsx")
+```
+
+Sidebar {.sidebar}
+=====================================
+```{r}
+selectInput('Sexo', 'Sexo', c('None', titanicDataset$Sex))
+selectInput('Idade', 'Idade', c('None','Adulto','Criança'))
+selectInput('Classe','Classe', c('None',sort(titanicDataset$Pclass)))
+```
+
+
+Página Inicial {data-navmenu="Home"}
+=====================================
+
+Row {}
+-----------------------------------------------------------------------
+
+### Como utilizar esta dashboard
+Essa dashboard foi feita utilizando a biblioteca Flex_Dashboard para R. Nele se encontram todos os gráficos e tabelas gerados para o projeto - de aplicação de planejamento fatorial 2k da cadeira de estatística.<br/>
+
+O tema escolhido foi: "APLICAÇÃO DO PLANEJAMENTO FATORIAL 2k PARA ANÁLISE DE EFEITOS DE PAR METROS SIMPLES SOBRE A MORTALIDADE DO TITANIC"<br/>
+Nesta dashboard se encontram 3 abas. São elas: Dados, Regressão e Intervalos de Confiança.<br/>
+
+A aba dados contém as tabelas feitas em R para o projeto, a de regressão contém os gráficos feitos em R para Regressão Linear e Regressão Logística, e por ultimo, a aba Intervalos de Confiança contém os gráficos de Intervalos de Confiança da média da população feitos em R.<br/>
+
+Através da Sidebar é possível utilizar a dashboard de maneira dinâmica. Basta Escolher um dado que todos os gráficos vão se atualizar.<br/>
+
+Por último, mas não menos importante, é possível verificar o código fonte utilizado para gerar essa dashboard (o que por consequência mostra o código utilizado para gerar os gráficos e tabelas) clicando no botão source code.
+
+
+```{r}
+dataset <- reactive({
+    filter(titanicDataset, Sex == input$Sexo | input$Sexo == "None", AgeFact == ifelse(input$Idade == "Adulto",+1,ifelse(input$Idade == "Criança",-1,"None")) | input$Idade == "None", Pclass == input$Classe | input$Classe == "None")
+})
+```
+
+
+Tabelas {data-navmenu="Dados"}
+=====================================
+
+Row {.tabset}
+-----------------------------------------------------------------------
+
+### Sumário dos dados
+```{r, fig.width=10, fig.height=7}
+renderPlot({
+summary <- describe(dataset() %>% select("Survived", "Pclass", "Sexo", "Age"), skew=FALSE)
+d <- head(summary)
+g <- tableGrob(d)
+grid.draw(g)
+})
+```
+
+### Contraste
+```{r, fig.width=10, fig.height=7}
+renderPlot({
+da <- aggregate(Survived ~ SexFact + AgeFact + ClassFact, data = titanicDataset, FUN = mean)
+da <- transform(da,
+                SexAge = SexFact*AgeFact,
+                SexClass = SexFact*ClassFact,
+                AgeClass = AgeFact*ClassFact,
+                SexAgeClass = SexFact*AgeFact*ClassFact)
+
+da <- da[c(1,2,3,5,6,7,8,4)]
+
+d <- head(da)
+g <- tableGrob(d)
+grid.draw(g)
+})
+```
+
+### Resposta dos Efeitos
+```{r, fig.width=10, fig.height=7}
+renderPlot({
+da <- lm(Survived ~ SexFact * AgeFact * ClassFact, data = dataset())
+
+summer <- summary(da)$coefficients
+
+g <- tableGrob(summer)
+grid.draw(g)
+})
+```
+
+
+Linear {data-navmenu="Regressão"}
+=====================================  
+
+Row {.tabset}
+----------------------------------------------------------------------
+
+### Regresão Linear para Sexo
+```{r, fig.width=10, fig.height=7}
+renderPlot({
+ggplot(dataset(), aes(SexFact, Survived)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE)
+})
+```
+
+### Regressão Linear Para Idade
+
+```{r, fig.width=10, fig.height=7}
+renderPlot({
+ggplot(dataset(), aes(Age, Survived)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE)
+})
+```
+
+### Regressão Linear Para Classe
+
+```{r, fig.width=10, fig.height=7}
+renderPlot({
+ggplot(dataset(), aes(Pclass, Survived)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE)
+})
+```
+
+Logística {data-navmenu="Regressão"}
+=====================================
+
+Row {.tabset}
+-----------------------------------------------------------------------
+
+### Regressão Logística Para Sexo e Idade
+
+```{r, fig.width=10, fig.height=7}
+renderPlot({
+survive_age_woman_x <- glm(Survived ~ Age * Sex, data = dataset(),
+                           family = binomial)
+
+titanic_age_sex_x <- augment(survive_age_woman_x,
+                             newdata = data_grid(dataset(), Age, Sex),
+                             type.predict = "response")
+
+ggplot(titanic_age_sex_x, aes(Age, .fitted, color = Sex)) +
+  geom_line() +
+  labs(y = "Probabilidade de sobrevivência",
+       color = "Sex")
+})
+```
+
+### Regressão Logística Para Sexo e Classe
+
+```{r, fig.width=10, fig.height=7}
+renderPlot({
+survive_age_woman_x <- glm(Survived ~ Pclass * Sex, data = dataset(),
+                           family = binomial)
+
+titanic_age_sex_x <- augment(survive_age_woman_x,
+                             newdata = data_grid(dataset(), Pclass, Sex),
+                             type.predict = "response")
+
+ggplot(titanic_age_sex_x, aes(Pclass, .fitted, color = Sex)) +
+  geom_line() +
+  labs(y = "Probabilidade de sobrevivência",
+       color = "Sex")
+})
+```
+
+### Regressão Logística Para Classe e Idade
+
+```{r, fig.width=10, fig.height=7}
+renderPlot({
+survive_age_woman_x <- glm(Survived ~ Age * Classe, data = dataset(),
+                           family = binomial)
+
+titanic_age_sex_x <- augment(survive_age_woman_x,
+                             newdata = data_grid(dataset(), Age, Classe),
+                             type.predict = "response")
+
+ggplot(titanic_age_sex_x, aes(Age, .fitted, color = Classe)) +
+  geom_line() +
+  labs(y = "Probabilidade de sobrevivência",
+       color = "Classe")
+})
+```
+
+ Média da População {data-navmenu="Intervalos de Confiança"}
+=====================================
+
+Row {.tabset}
+-----------------------------------------------------------------------
+
+### Intervalo de confiança da média da população para Sexo
+
+```{r, fig.width=10, fig.height=7}
+renderPlot({
+Sum = groupwiseMean(Survived ~ Sex,
+                    data = dataset(),
+                    conf   = 0.95,
+                    digits = 3)
+
+qplot(x    = Sex ,
+      y    = Mean,
+      label = Mean,
+      data = Sum) +
+  
+  geom_errorbar(aes(
+    ymin  = Trad.lower,
+    ymax  = Trad.upper,
+    width = 0.15)) +
+    geom_text(hjust = 0, nudge_x = 0.05) +
+    geom_text(aes(label = Trad.upper, y = Trad.upper), hjust = 3) +
+    geom_text(aes(label = Trad.lower, y = Trad.lower), hjust = 3)
+})
+```
+
+### Intervalo de confiança da média da população para Idade
+
+```{r, fig.width=10, fig.height=7}
+renderPlot({
+Sum = groupwiseMean(Survived ~ AgeFact,
+                    data = dataset(),
+                    conf   = 0.95,
+                    digits = 3)
+
+qplot(x    = AgeFact,
+      y    = Mean,
+      xlim = c(-2,2),
+      label = Mean,
+      data = Sum) +
+  
+  geom_errorbar(aes(
+    ymin  = Trad.lower,
+    ymax  = Trad.upper,
+    width = 0.15)) +
+    geom_text(hjust = 0, nudge_x = 0.05) +
+    geom_text(aes(label = Trad.upper, y = Trad.upper), hjust = 3) +
+    geom_text(aes(label = Trad.lower, y = Trad.lower), hjust = 3)
+})
+```
+
+### Intervalo de confiança da média da população para Classe
+
+```{r, fig.width=10, fig.height=7}
+renderPlot({
+Sum = groupwiseMean(Survived ~ ClassFact,
+                    data = dataset(),
+                    conf   = 0.95,
+                    digits = 3)
+
+qplot(x    = ClassFact,
+      y    = Mean,
+      xlim = c(-2,2),
+      label = Mean,
+      data = Sum) +
+  
+  geom_errorbar(aes(
+    ymin  = Trad.lower,
+    ymax  = Trad.upper,
+    width = 0.15)) +
+    geom_text(hjust = 0, nudge_x = 0.05) +
+    geom_text(aes(label = Trad.upper, y = Trad.upper), hjust = 3) +
+    geom_text(aes(label = Trad.lower, y = Trad.lower), hjust = 3)
+})
+```
